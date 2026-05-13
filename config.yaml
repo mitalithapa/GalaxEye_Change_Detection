@@ -1,0 +1,61 @@
+# GalaxEye Technical Assessment - Hyperparameter Logging
+project: "Heterogeneous_EO_SAR_Change_Detection"
+model_architecture: "Pseudo-Siamese ChangeFormer (MixVisionTransformer Stem)"
+framework: "Open-CD / OpenMMLab"
+
+hardware:
+  gpu: "Tesla T4 (16GB VRAM)"
+  seed: 1527130312
+  cudnn_benchmark: true
+
+dataset:
+  name: "Disaster-Hetero-CD"
+  input_streams: 
+    - "Stream 1: Pre-event EO (3-Channel)"
+    - "Stream 2: Post-event SAR (1-Channel dB-Scaled)"
+  image_size: [256, 256]
+  normalization_mean: [123.675, 116.28, 103.53, 127.5]
+  normalization_std: [58.395, 57.12, 57.375, 57.12]
+
+augmentations:
+  MultiImgRandomRotate: {prob: 0.5, degree: 180}
+  MultiImgRandomFlip_Horizontal: {prob: 0.5, direction: "horizontal"}
+  MultiImgRandomFlip_Vertical: {prob: 0.5, direction: "vertical"}
+  MultiImgRandomCrop: {crop_size: [256, 256], cat_max_ratio: 0.75}
+
+training_hyperparameters:
+  max_iterations: 5000
+  batch_size: 8
+  num_workers: 2
+  val_interval: 500
+  checkpoint_interval: 500
+
+optimizer:
+  type: "AdamW"
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  paramwise_cfg:
+    head_lr_mult: 10.0
+    pos_block_decay_mult: 0.0
+    norm_decay_mult: 0.0
+
+learning_rate_scheduler:
+  warmup:
+    type: "LinearLR"
+    start_factor: 1e-6
+    begin: 0
+    end: 500
+  decay:
+    type: "CosineAnnealingLR"
+    begin: 500
+    T_max: 4500
+    eta_min: 0.0
+
+loss_function:
+  compound_loss: true
+  components:
+    - type: "Weighted Binary Cross-Entropy (BCE)"
+      class_weights: [0.016, 0.984] # Heavily targets the 1.57% minority damage class
+      loss_weight: 1.0
+    - type: "Dice Loss"
+      loss_weight: 1.0
