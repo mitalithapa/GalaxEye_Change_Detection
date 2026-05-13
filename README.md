@@ -185,7 +185,7 @@ python tools/test.py configs/changeformer/custom_disaster.py \
 
 The final optimized weights (`best_mIoU_iter_5000.pth`) are hosted publicly:
 
-> **[⬇ Download Final Checkpoint]()** ← *(https://drive.google.com/file/d/1vmtktktcH89nuxiYfn91LQF_QHbqwRIU/view?usp=sharing)*
+> **[⬇ Download Final Checkpoint](https://drive.google.com/file/d/1vmtktktcH89nuxiYfn91LQF_QHbqwRIU/view?usp=sharing)** ← *(Google Drive Link)*
 
 ---
 
